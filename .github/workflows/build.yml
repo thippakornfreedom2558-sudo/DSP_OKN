@@ -1,4 +1,4 @@
-name: Build Android APK
+name: Build BP1048P4 DSP APK
 
 on:
   workflow_dispatch:
@@ -13,10 +13,36 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Download project
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Java 17
+      - name: Find and extract project ZIP
+        shell: bash
+        run: |
+          set -e
+          ZIP=$(find . -maxdepth 1 -type f -name "*.zip" | head -1)
+          echo "ZIP: $ZIP"
+
+          mkdir -p extracted
+          unzip -q "$ZIP" -d extracted
+
+          APP_DIR=$(find extracted -type d -name app -print -quit)
+
+          if [ -z "$APP_DIR" ]; then
+            echo "ERROR: app folder not found"
+            find extracted -maxdepth 4 -type d
+            exit 1
+          fi
+
+          PROJECT_DIR=$(dirname "$APP_DIR")
+          echo "PROJECT: $PROJECT_DIR"
+
+          cp -r "$PROJECT_DIR"/. .
+
+          echo "Project files:"
+          ls -la
+
+      - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -28,7 +54,8 @@ jobs:
           gradle-version: '8.9'
 
       - name: Build APK
-        run: gradle assembleDebug --no-daemon
+        run: |
+          gradle assembleDebug --no-daemon
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
