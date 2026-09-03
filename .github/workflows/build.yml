@@ -1,4 +1,4 @@
-name: Build BP1048P4 DSP v1.2
+name: Build BP1048P4 DSP v1.3
 
 on:
   workflow_dispatch:
@@ -16,9 +16,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Extract v1.2 project
+      - name: Extract v1.3 project
         run: |
-          unzip -o BP1048P4_DSP_7CH_UI_v1_2.zip -d /tmp/dsp
+          unzip -o BP1048P4_DSP_7CH_UI_v1_3.zip -d /tmp/dsp
           cp -a /tmp/dsp/. .
 
       - name: Setup Java
@@ -38,5 +38,5 @@ jobs:
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: BP1048P4-DSP-7CH-v1.2-APK
+          name: BP1048P4-DSP-7CH-v1.3-APK
           path: app/build/outputs/apk/debug/app-debug.apk
