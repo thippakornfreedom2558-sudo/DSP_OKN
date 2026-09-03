@@ -27,10 +27,9 @@ jobs:
         with:
           gradle-version: '8.9'
 
-      - name: Extract v1.4 project
+      - name: Extract v2.0 project
         run: |
-          unzip -o BP1048P4_DSP_7CH_UI_v1_4_FINAL.zip
-          find . -maxdepth 2 -type f | head -50
+          unzip -o BP1048P4_DSP_7CH_FULL_v2_0.zip
 
       - name: Build APK
         run: gradle assembleDebug --no-daemon
@@ -38,5 +37,5 @@ jobs:
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: BP1048P4-DSP-7CH-v1.4-APK
+          name: BP1048P4-DSP-7CH-v2.0-APK
           path: app/build/outputs/apk/debug/app-debug.apk
