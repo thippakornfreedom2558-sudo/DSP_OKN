@@ -28,16 +28,53 @@ jobs:
           gradle-version: '8.9'
 
       - name: Extract project ZIP
+        shell: bash
         run: |
-          unzip -o BP1048P4_DSP_7CH_v2_3_5_ACTUATOR_LAB_FIXED.zip -d project
-          cp -a project/. ./ 
+          set -e
+          ZIP=$(find . -maxdepth 2 -type f -name 'BP1048P4_DSP_7CH_v2_3_6_ROOT_BUILD.zip' -print -quit)
+          if [ -z "$ZIP" ]; then
+            echo "ERROR: v2.3.6 ZIP not found"
+            find . -maxdepth 3 -type f -name '*.zip' -print
+            exit 1
+          fi
           rm -rf project
+          mkdir project
+          unzip -q "$ZIP" -d project
+
+          SETTINGS=$(find project -type f \( -name settings.gradle -o -name settings.gradle.kts \) -print -quit)
+          if [ -z "$SETTINGS" ]; then
+            echo "ERROR: settings.gradle/settings.gradle.kts not found"
+            find project -maxdepth 5 -type f | sort | head -200
+            exit 1
+          fi
+
+          PROJECT_DIR=$(dirname "$SETTINGS")
+          echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
+          echo "Android project found at: $PROJECT_DIR"
 
       - name: Build APK
-        run: gradle assembleDebug --no-daemon
+        shell: bash
+        run: |
+          set -e
+          cd "$PROJECT_DIR"
+          chmod +x gradlew
+          ./gradlew :app:assembleDebug --no-daemon
+
+      - name: Find APK
+        shell: bash
+        run: |
+          set -e
+          APK=$(find "$PROJECT_DIR/app/build/outputs/apk" -type f -name '*.apk' -print -quit)
+          if [ -z "$APK" ]; then
+            echo "ERROR: APK not found"
+            find "$PROJECT_DIR/app/build/outputs" -type f -print || true
+            exit 1
+          fi
+          echo "APK=$APK" >> "$GITHUB_ENV"
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: BP1048P4-DSP-7CH-v2.0.1-APK
-          path: app/build/outputs/apk/debug/app-debug.apk
+          name: BP1048P4-DSP-7CH-v2.3.6-ACTUATOR-LAB-APK
+          path: ${{ env.APK }}
+          if-no-files-found: error
