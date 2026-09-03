@@ -31,7 +31,7 @@ jobs:
         shell: bash
         run: |
           set -e
-          ZIP=$(find . -type f -name 'GoloPine_DSP_7CH_REFERENCE_UI_v2.5.0.zip' -print -quit)
+          ZIP=$(find . -type f -name 'GoloPine_DSP_7CH_REFERENCE_UI_v2.5.1.zip' -print -quit)
           if [ -z "$ZIP" ]; then
             echo "ERROR: v2.3.6 ZIP not found"
             find . -type f -name '*.zip' -print
